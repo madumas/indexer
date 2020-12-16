@@ -63,6 +63,7 @@ interface AgentInputs {
   paused: boolean
   isOperator: boolean
   currentEpoch: number
+  currentEpochStartBlockHash: string
   maxAllocationEpochs: number
   activeDeployments: SubgraphDeploymentID[]
   targetDeployments: SubgraphDeploymentID[]
@@ -190,6 +191,7 @@ class Agent {
           paused,
           isOperator,
           currentEpoch,
+          currentEpochStartBlockHash,
           maxAllocationEpochs,
           activeDeployments,
           targetDeployments,
@@ -235,6 +237,7 @@ class Agent {
               targetDeployments,
               indexingRules,
               currentEpoch,
+              currentEpochStartBlockHash,
               maxAllocationEpochs,
             )
           } catch (err) {
@@ -254,6 +257,13 @@ class Agent {
     const currentEpoch = (
       await this.network.contracts.epochManager.currentEpoch()
     ).toNumber()
+
+    const currentEpochStartBlock = await this.network.contracts.epochManager.currentEpochBlock()
+
+    const currentEpochStartBlockHash = (
+      await this.network.ethereum.getBlock(currentEpochStartBlock.toNumber())
+    ).hash
+
     const maxAllocationEpochs = await this.network.contracts.staking.maxAllocationEpochs()
     const channelDisputeEpochs = await this.network.contracts.staking.channelDisputeEpochs()
 
@@ -290,6 +300,7 @@ class Agent {
       paused,
       isOperator,
       currentEpoch,
+      currentEpochStartBlockHash,
       maxAllocationEpochs,
       activeDeployments,
       indexingRules,
@@ -352,7 +363,7 @@ class Agent {
     const queue = new PQueue({ concurrency: 10 })
 
     // Index all new deployments worth indexing
-    queue.addAll(
+    await queue.addAll(
       deploy.map(deployment => async () => {
         const name = `indexer-agent/${deployment.ipfsHash.slice(-10)}`
 
@@ -364,12 +375,12 @@ class Agent {
         // Ensure the deployment is deployed to the indexer
         // Note: we're not waiting here, as sometimes indexing a subgraph
         // will block if the IPFS files cannot be retrieved
-        this.indexer.ensure(name, deployment)
+        await this.indexer.ensure(name, deployment)
       }),
     )
 
     // Stop indexing deployments that are no longer worth indexing
-    queue.addAll(
+    await queue.addAll(
       remove.map(deployment => async () => this.indexer.remove(deployment)),
     )
 
@@ -381,6 +392,7 @@ class Agent {
     targetDeployments: SubgraphDeploymentID[],
     rules: IndexingRuleAttributes[],
     currentEpoch: number,
+    currentEpochStartBlockHash: string,
     maxAllocationEpochs: number,
   ): Promise<void> {
     const allocationLifetime = Math.max(1, maxAllocationEpochs - 1)
@@ -437,6 +449,7 @@ class Agent {
             rules.find(rule => rule.deployment === INDEXING_RULE_GLOBAL),
 
           currentEpoch,
+          currentEpochStartBlockHash,
           maxAllocationEpochs,
         )
       },
@@ -450,6 +463,7 @@ class Agent {
     worthIndexing: boolean,
     rule: IndexingRuleAttributes | undefined,
     epoch: number,
+    epochStartBlockHash: string,
     maxAllocationEpochs: number,
   ): Promise<void> {
     const logger = this.logger.child({
@@ -506,7 +520,7 @@ class Agent {
             const poi =
               (await this.indexer.proofOfIndexing(
                 deployment,
-                allocation.createdAtBlockHash,
+                epochStartBlockHash,
               )) ||
               utils.hexlify(
                 '0xC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEEEEE',
@@ -582,7 +596,7 @@ class Agent {
             const poi =
               (await this.indexer.proofOfIndexing(
                 deployment,
-                allocation.createdAtBlockHash,
+                epochStartBlockHash,
               )) ||
               utils.hexlify(
                 '0xC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEEEEE',
@@ -647,7 +661,7 @@ class Agent {
               const poi =
                 (await this.indexer.proofOfIndexing(
                   deployment,
-                  allocation.createdAtBlockHash,
+                  epochStartBlockHash,
                 )) ||
                 utils.hexlify(
                   '0xC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEC0FFEEEEEE',
