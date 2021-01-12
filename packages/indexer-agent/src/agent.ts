@@ -397,9 +397,9 @@ class Agent {
     )
 
     // Stop indexing deployments that are no longer worth indexing
-    await queue.addAll(
-      remove.map(deployment => async () => this.indexer.remove(deployment)),
-    )
+    //await queue.addAll(
+    //  remove.map(deployment => async () => this.indexer.remove(deployment)),
+    //)
 
     await queue.onIdle()
   }
