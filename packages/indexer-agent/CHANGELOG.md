@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] - 2021-01-16
+### Fixed
+- Update ethers to 5.0.26 to avoid unresolved promise rejections (#183)
+
+### Changed
+- Update common-ts to 1.2.1
+
+## [0.9.4] - 2021-01-13
+### Fixed
+- Never close allocations if the POI is zero or null (#186)
+- Retry obtaining a POI ten times before giving up
+
 ## [0.9.3] - 2021-01-11
 ### Fixed
 - Fix how query fee threshold is passed to claimable allocations query
@@ -204,7 +216,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update @graphprotocol/common-ts to 0.2.2
 
-[Unreleased]: https://github.com/graphprotocol/indexer/compare/v0.9.3...HEAD
+[Unreleased]: https://github.com/graphprotocol/indexer/compare/v0.9.5...HEAD
+[0.9.5]: https://github.com/graphprotocol/indexer/compare/v0.9.4...v0.9.5
+[0.9.4]: https://github.com/graphprotocol/indexer/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/graphprotocol/indexer/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/graphprotocol/indexer/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/graphprotocol/indexer/compare/v0.9.0-alpha.4...v0.9.1

@@ -1,6 +1,6 @@
 {
   "name": "@graphprotocol/indexer-cli",
-  "version": "0.9.3",
+  "version": "0.9.5",
   "description": "Indexer CLI for The Graph Network",
   "main": "dist/index.js",
   "repository": "https://github.com/graphprotocol/cli",
@@ -12,14 +12,14 @@
     "prepare": "rm -rf dist && yarn format && yarn lint && tsc"
   },
   "dependencies": {
-    "@graphprotocol/common-ts": "1.2.0",
-    "@graphprotocol/indexer-common": "^0.9.3",
+    "@graphprotocol/common-ts": "1.2.1",
+    "@graphprotocol/indexer-common": "^0.9.5",
     "@iarna/toml": "2.2.5",
     "@thi.ng/iterators": "5.1.40",
     "@urql/core": "1.13.1",
     "chalk": "4.1.0",
     "env-paths": "2.2.0",
-    "ethers": "5.0.19",
+    "ethers": "5.0.26",
     "gluegun": "4.5.0",
     "graphql-tag": "2.11.0",
     "isomorphic-fetch": "3.0.0",
